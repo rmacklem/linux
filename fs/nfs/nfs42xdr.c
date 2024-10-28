@@ -1678,26 +1678,26 @@ nfsacl4_posix_tagtotype(u32 tag)
 	int type;
 
 	switch(tag) {
-		case ACL_USER_OBJ:
-			type = POSIXACE4_TAG_USER_OBJ;
-			break;
-		case ACL_GROUP_OBJ:
-			type = POSIXACE4_TAG_GROUP_OBJ;
-			break;
-		case ACL_USER:
-			type = POSIXACE4_TAG_USER;
-			break;
-		case ACL_GROUP:
-			type = POSIXACE4_TAG_GROUP;
-			break;
-		case ACL_MASK:
-			type = POSIXACE4_TAG_MASK;
-			break;
-		case ACL_OTHER:
-			type = POSIXACE4_TAG_OTHER;
-			break;
-		default:
-			return -EINVAL;
+	case ACL_USER_OBJ:
+		type = POSIXACE4_TAG_USER_OBJ;
+		break;
+	case ACL_GROUP_OBJ:
+		type = POSIXACE4_TAG_GROUP_OBJ;
+		break;
+	case ACL_USER:
+		type = POSIXACE4_TAG_USER;
+		break;
+	case ACL_GROUP:
+		type = POSIXACE4_TAG_GROUP;
+		break;
+	case ACL_MASK:
+		type = POSIXACE4_TAG_MASK;
+		break;
+	case ACL_OTHER:
+		type = POSIXACE4_TAG_OTHER;
+		break;
+	default:
+		return -EINVAL;
 	}
 	return type;
 }
@@ -1720,45 +1720,45 @@ dprintk("at encode perm=%d\n", acep->e_perm);
 		return -EINVAL;
 	size = 8;
 	switch(acep->e_tag) {
-		case ACL_USER_OBJ:
-		case ACL_GROUP_OBJ:
-		case ACL_MASK:
-		case ACL_OTHER:
+	case ACL_USER_OBJ:
+	case ACL_GROUP_OBJ:
+	case ACL_MASK:
+	case ACL_OTHER:
 dprintk("at encode 0\n");
-			if (xdr_stream_encode_u32(xdr, 0) < 0)
-				return -EINVAL;
-			size += 4;
-			break;
-		case ACL_USER:
-			len = nfs_map_uid_to_name(server, acep->e_uid, owner,
-						  IDMAP_NAMESZ);
-dprintk("user len=%d\n", len);
-			if (len < 0) {
-				dprintk("nfs: couldn't resolve uid %d to str\n",
-					from_kuid(&init_user_ns, acep->e_uid));
-				return -EINVAL;
-			}
-			if (xdr_stream_encode_opaque(xdr, owner, len) < 0)
-				return -EINVAL;
-			size += 4 + (XDR_QUADLEN(len) << 2);
-dprintk("aft opaque size=%d\n", size);
-			break;
-		case ACL_GROUP:
-			len = nfs_map_gid_to_group(server, acep->e_gid, owner,
-						 IDMAP_NAMESZ);
-dprintk("group len=%d\n", len);
-			if (len < 0) {
-				dprintk("nfs: couldn't resolve gid %d to str\n",
-					from_kgid(&init_user_ns, acep->e_gid));
-				return -EINVAL;
-			}
-			if (xdr_stream_encode_opaque(xdr, owner, len) < 0)
-				return -EINVAL;
-			size += 4 + (XDR_QUADLEN(len) << 2);
-dprintk("aft group opaque size=%d\n", size);
-			break;
-		default:
+		if (xdr_stream_encode_u32(xdr, 0) < 0)
 			return -EINVAL;
+		size += 4;
+		break;
+	case ACL_USER:
+		len = nfs_map_uid_to_name(server, acep->e_uid, owner,
+					  IDMAP_NAMESZ);
+dprintk("user len=%d\n", len);
+		if (len < 0) {
+			dprintk("nfs: couldn't resolve uid %d to str\n",
+				from_kuid(&init_user_ns, acep->e_uid));
+			return -EINVAL;
+		}
+		if (xdr_stream_encode_opaque(xdr, owner, len) < 0)
+			return -EINVAL;
+		size += 4 + (XDR_QUADLEN(len) << 2);
+dprintk("aft opaque size=%d\n", size);
+		break;
+	case ACL_GROUP:
+		len = nfs_map_gid_to_group(server, acep->e_gid, owner,
+					 IDMAP_NAMESZ);
+dprintk("group len=%d\n", len);
+		if (len < 0) {
+			dprintk("nfs: couldn't resolve gid %d to str\n",
+				from_kgid(&init_user_ns, acep->e_gid));
+			return -EINVAL;
+		}
+		if (xdr_stream_encode_opaque(xdr, owner, len) < 0)
+			return -EINVAL;
+		size += 4 + (XDR_QUADLEN(len) << 2);
+dprintk("aft group opaque size=%d\n", size);
+		break;
+	default:
+		return -EINVAL;
 	}
 dprintk("eo xdr_nfs4ace_encode size=%d\n", size);
 	return size;
