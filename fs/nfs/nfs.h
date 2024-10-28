@@ -26,5 +26,8 @@ struct nfs_subversion *get_nfs_version(unsigned int);
 void put_nfs_version(struct nfs_subversion *);
 void register_nfs_version(struct nfs_subversion *);
 void unregister_nfs_version(struct nfs_subversion *);
+void nfs_prepare_get_acl(struct posix_acl **);
+void nfs_complete_get_acl(struct posix_acl **, struct posix_acl *);
+void nfs_abort_get_acl(struct posix_acl **);
 
 #endif /* __LINUX_INTERNAL_NFS_H */
