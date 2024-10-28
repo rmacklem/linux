@@ -1718,7 +1718,7 @@ dprintk("in xdr_nfs4ace_encode tag=%d\n", acep->e_tag);
 dprintk("at encode perm=%d\n", acep->e_perm);
 	if (xdr_stream_encode_u32(xdr, acep->e_perm) < 0)
 		return -EINVAL;
-	size = 8;
+	size = 2 * XDR_UNIT;
 	switch(acep->e_tag) {
 	case ACL_USER_OBJ:
 	case ACL_GROUP_OBJ:
@@ -1727,7 +1727,7 @@ dprintk("at encode perm=%d\n", acep->e_perm);
 dprintk("at encode 0\n");
 		if (xdr_stream_encode_u32(xdr, 0) < 0)
 			return -EINVAL;
-		size += 4;
+		size += XDR_UNIT;
 		break;
 	case ACL_USER:
 		len = nfs_map_uid_to_name(server, acep->e_uid, owner,
@@ -1740,7 +1740,7 @@ dprintk("user len=%d\n", len);
 		}
 		if (xdr_stream_encode_opaque(xdr, owner, len) < 0)
 			return -EINVAL;
-		size += 4 + (XDR_QUADLEN(len) << 2);
+		size += XDR_UNIT + (XDR_QUADLEN(len) << 2);
 dprintk("aft opaque size=%d\n", size);
 		break;
 	case ACL_GROUP:
@@ -1754,7 +1754,7 @@ dprintk("group len=%d\n", len);
 		}
 		if (xdr_stream_encode_opaque(xdr, owner, len) < 0)
 			return -EINVAL;
-		size += 4 + (XDR_QUADLEN(len) << 2);
+		size += XDR_UNIT + (XDR_QUADLEN(len) << 2);
 dprintk("aft group opaque size=%d\n", size);
 		break;
 	default:
@@ -1774,13 +1774,13 @@ static int encode_stream_posixacl(struct xdr_stream *xdr, struct posix_acl *acl,
 dprintk("in encode_posixacl NULL acl\n");
 		if (xdr_stream_encode_u32(xdr, 0) < 0)
 			return -EINVAL;
-		return 4;
+		return XDR_UNIT;
 	}
 	if (acl->a_count > NFS_ACL_MAX_ENTRIES)
 		return -EINVAL;
 	if (xdr_stream_encode_u32(xdr, acl->a_count) < 0)
 		return -EINVAL;
-	size = 4;
+	size = XDR_UNIT;
 dprintk("in encode_posixacl size=%d\n", size);
 
 	for (cnt = 0; cnt < acl->a_count; cnt++) {
@@ -1862,7 +1862,7 @@ dprintk("in xdr_nfs4ace_encode tag=%d\n", acep->e_tag);
 dprintk("at encode perm=%d\n", acep->e_perm);
 	if (!nfs_xdr_putpage_word(desc, acep->e_perm))
 		return -EINVAL;
-	size = 8;
+	size = 2 * XDR_UNIT;
 	switch(acep->e_tag) {
 	case ACL_USER_OBJ:
 	case ACL_GROUP_OBJ:
@@ -1871,7 +1871,7 @@ dprintk("at encode perm=%d\n", acep->e_perm);
 dprintk("at encode 0\n");
 		if (!nfs_xdr_putpage_word(desc, 0))
 			return -EINVAL;
-		size += 4;
+		size += XDR_UNIT;
 		break;
 	case ACL_USER:
 		len = nfs_map_uid_to_name(server, acep->e_uid, owner,
@@ -1884,7 +1884,7 @@ dprintk("user len=%d\n", len);
 		}
 		if (!nfs_xdr_putpage_word(desc, len))
 			return -EINVAL;
-		size += 4;
+		size += XDR_UNIT;
 		while (len & 3)
 			owner[len++] = '\0';
 		if (!nfs_xdr_putpage_bytes(desc, owner, len))
@@ -1903,7 +1903,7 @@ dprintk("group len=%d\n", len);
 		}
 		if (!nfs_xdr_putpage_word(desc, len))
 			return -EINVAL;
-		size += 4;
+		size += XDR_UNIT;
 		while (len & 3)
 			owner[len++] = '\0';
 		if (!nfs_xdr_putpage_bytes(desc, owner, len))
@@ -1928,14 +1928,14 @@ ssize_t nfs42_encode_posixacl(const struct nfs_server *server,
 dprintk("in nfs42_encode_posixacl NULL acl\n");
 		if (!nfs_xdr_putpage_word(desc, 0))
 			return -EINVAL;
-		return 4;
+		return XDR_UNIT;
 	}
 dprintk("in nfs42_encode_posixacl count=%d\n", acl->a_count);
 	if (acl->a_count > NFS_ACL_MAX_ENTRIES)
 		return -EINVAL;
 	if (!nfs_xdr_putpage_word(desc, acl->a_count))
 		return -EINVAL;
-	size = 4;
+	size = XDR_UNIT;
 dprintk("in nfs42_encode_posixacl size=%d\n", size);
 
 	for (cnt = 0; cnt < acl->a_count; cnt++) {
@@ -2157,7 +2157,7 @@ dprintk("owner=%s\n", owner);
 			return -EINVAL;
 	}
 
-	return (XDR_QUADLEN(ret) << 2) + 12;
+	return (XDR_QUADLEN(ret) << 2) + 3 * XDR_UNIT;
 }
 
 static ssize_t nfs_stream_decode_acl4(struct xdr_stream *xdr,
@@ -2175,7 +2175,7 @@ dprintk("in nfs_stream_decode_acl4\n");
 dprintk("entries=%d\n", entries);
 	if (entries > NFS_ACL_MAX_ENTRIES)
 		return -EINVAL;
-	retlen = 4;
+	retlen = XDR_UNIT;
 
 	nfsacl_desc.array_len = entries;
 	nfsacl_desc.count = 0;
@@ -2234,7 +2234,7 @@ static int decode_getposixacl(struct xdr_stream *xdr,
 		status = xdr_stream_decode_u32(xdr, &trueform);
 		if (status < 0)
 			goto xdr_error;
-		attrsize = 4;
+		attrsize = XDR_UNIT;
 	}
 
 dprintk("acl_trueform=%d\n", trueform);
