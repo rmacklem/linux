@@ -1664,7 +1664,7 @@ dprintk("argslen=%d\n", argslen);
 		 */
 		if (argslen > NFS4_ACL_INLINE_BUFSIZE) {
 			ssize_t ret, size;
-	
+
 			status = -ENOMEM;
 			size = 0;
 			if (args.mask & NFS_DFACL)
@@ -1683,9 +1683,8 @@ dprintk("aft encode_posixacl1=%d\n", size);
 			args.len = size;
 			args.pages = desc.pages;
 		}
-	
+
 dprintk("NFS4 call setacl\n");
-	
 		status = nfs4_call_sync(server->client, server, &msg,
 					&args.seq_args, &res.seq_res, 0);
 		status = nfs4_handle_exception(server, status, &exception);
